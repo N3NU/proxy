@@ -16,7 +16,7 @@ def hexdump(src, length=16, show=True):
         word = str(src[i:i+length])     #we grab a piece of the string to dump and put it into the word variable
        
         printable = word.translate(HEX_FILTER)       #we use the translate built-in func to substitute the str representation of each char for printable string
-        hexa = ' '.join([f'{ord(c):02X}' for c in word])
+        hexa = ' '.join([F'{ord(c):02X}'for c in word])
         hexwidth = length*3
         results.append(f'{i:04x} {hexa:<{hexwidth}} {printable}')   #we create a new array to hold the strings, result, that conatins the hex value of the index of 
                                                                     #the first byte in the word, the hex value of the word, and its printable representation
@@ -91,8 +91,10 @@ def proxy_handler(client_socket, remote_host, remote_port, receive_first):
 def server_loop(local_host, local_port,
                 remote_host, remote_port, receive_first):
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  #the server_loop function creates a socket
+    print(f'{type(local_host)} {type(local_port)}')
+
     try:
-        server.bind((local_host, local_host))   #the server_loop then binds to to the local host and listens
+        server.bind((local_host, local_port))   #the server_loop then binds to to the local host and listens
     except Exception as e:
         print('problem on bind: %r' % e)
 
@@ -106,7 +108,7 @@ def server_loop(local_host, local_port,
         client_socket, addr = server.accept()
         # print out the local connection information
         line = "> Received incoming connection from %s:%d" % (addr[0], addr[1])
-        print(line)
+        print(line),
         #start a thread to talk to the remote host
         proxy_thread = threading.Thread(                            #when a fresh connection request comes in, we hand it off to the proxy_handler in a new thread,
             target=proxy_handler,                                   #which does all of the sending and receiving of juicy bits to either side of the data stream
@@ -117,7 +119,7 @@ def server_loop(local_host, local_port,
 #####main function
 def main():                             #in the main function, we take in some command line arguments and then fire up the server loop that listens for connections
     if len(sys.argv[1:]) != 5:
-        print("Usage: ./proxy.py [localhost] [localport]", end='')
+     #   print("Usage: ./proxy.py [localhost] [localport]", end='')
         print("[remotehost] [remoteport] [receive_first]")
         print("Example: ./proxy.py 127.0.0.1 9000 10.12.132.1 9000 True")
         sys.exit(0)
