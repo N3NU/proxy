@@ -28,7 +28,7 @@ def hexdump(src, length=16, show=True):
 
 def receive_from(connection):
     buffer = b""
-    connection.settimeout(5)        #we create an empty byte string, buffer, that will accumulate responses from the socket
+    connection.settimeout(10)        #we create an empty byte string, buffer, that will accumulate responses from the socket
     try:
         while True:
             data = connection.recv(4096)    #we set  up a loop to read response data data into the buffer until there's no more data or we time out
@@ -74,7 +74,7 @@ def proxy_handler(client_socket, remote_host, remote_port, receive_first):
 
         remote_buffer= receive_from(remote_socket)
         if len(remote_buffer):
-            print("[<==] Received &d bytes form remote." % len(remote_buffer))
+            print("[<==] Received %d bytes form remote." % len(remote_buffer))
             hexdump(remote_buffer)
 
             remote_buffer = response_handler(remote_buffer)
@@ -91,7 +91,6 @@ def proxy_handler(client_socket, remote_host, remote_port, receive_first):
 def server_loop(local_host, local_port,
                 remote_host, remote_port, receive_first):
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  #the server_loop function creates a socket
-    print(f'{type(local_host)} {type(local_port)}')
 
     try:
         server.bind((local_host, local_port))   #the server_loop then binds to to the local host and listens
@@ -110,12 +109,13 @@ def server_loop(local_host, local_port,
         line = "> Received incoming connection from %s:%d" % (addr[0], addr[1])
         print(line),
         #start a thread to talk to the remote host
+      
         proxy_thread = threading.Thread(                            #when a fresh connection request comes in, we hand it off to the proxy_handler in a new thread,
             target=proxy_handler,                                   #which does all of the sending and receiving of juicy bits to either side of the data stream
             args=(client_socket, remote_host,
             remote_port, receive_first))
         proxy_thread.start()
-
+        
 #####main function
 def main():                             #in the main function, we take in some command line arguments and then fire up the server loop that listens for connections
     if len(sys.argv[1:]) != 5:
@@ -139,4 +139,4 @@ def main():                             #in the main function, we take in some c
         remote_host, remote_port, receive_first)
 
 if __name__ == '__main__':
-    main()
+    main() 
